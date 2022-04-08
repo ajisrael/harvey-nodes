@@ -39,16 +39,27 @@ void connectToNetwork() {
 }
 
 void getGardenBedConfig() {
-  HTTPClient http;
-  
   String currentPath = serverName + "/api/esp32config/gardenBed";
 
-  http.begin(currentPath.c_str());
+  String payload = httpGETRequest(currentPath);
+String httpGETRequest(String requestPath) {
+  WiFiClient client;
+  HTTPClient http;
+
+  http.begin(client, requestPath.c_str());
   int respCode = http.GET();
 
-  logHttpResponse("GET", currentPath, respCode, http.getString());
+  String payload = "{}";
+
+  if (respCode > 0) {
+    payload = http.getString();
+  }
 
   http.end();
+
+  logHttpResponse("GET", requestPath, respCode, payload);
+
+  return payload;
 }
 
 void logHttpResponse(String requestType, String requestPath, int responseCode, String payload) {

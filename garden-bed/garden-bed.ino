@@ -16,9 +16,7 @@ void loop() {
   if ((millis() - lastTime) > apiCallDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
-
       getGardenBedConfig();
-      
     }
     else {
       Serial.println("WiFi Disconnected");

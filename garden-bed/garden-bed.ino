@@ -78,12 +78,13 @@ String httpGETRequest(String requestPath) {
 }
 
 void logHttpResponse(String requestType, String requestPath, int responseCode, String payload) {
-  Serial.print("Request made to: ");
+  Serial.print("HTTP Request to   : ");
   Serial.println(requestType + " " + requestPath);
 
   if (responseCode > 0) {
-    Serial.print("HTTP Response code: ");
+    Serial.print("HTTP Response Code: ");
     Serial.println(responseCode);
+    Serial.print("HTTP Response Body: ");
     Serial.println(payload);
   }
   else {

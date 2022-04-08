@@ -4,12 +4,13 @@
 #include <ArduinoJson.h>
 #include "LocalConfig.h"
 
+const int jsonDocSize = 300;       // size of static JSON document
+
 unsigned long lastTime = 0;        // Holds value for millis() for timing API calls
 unsigned long apiCallDelay = 5000; // Delay between calls to API
 
 void setup() {
   Serial.begin(115200);
-
   connectToNetwork();
 }
 
@@ -27,14 +28,17 @@ void loop() {
 }
 
 void connectToNetwork() {
+  const int connectionDelay = 500;   // Delay for output when connecting to wifi
+  
   WiFi.begin(ssid, password);
+  
   Serial.println("Connecting");
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(connectionDelay);
     Serial.print(".");
   }
-
   Serial.println("");
+  
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
 }
@@ -44,7 +48,7 @@ void getGardenBedConfig() {
 
   String payload = httpGETRequest(currentPath);
 
-  StaticJsonDocument<300> doc;
+  StaticJsonDocument<jsonDocSize> doc;
   DeserializationError error = deserializeJson(doc, payload);
 
   if (error) {
@@ -93,7 +97,7 @@ void logHttpResponse(String requestType, String requestPath, int responseCode, S
   }
 }
 
-void updateApiCallDelay(StaticJsonDocument<300> doc) {
+void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
   if (!doc["apiCallDelay"]) {
     Serial.println("No apiCallDelay configuration found");
     return;

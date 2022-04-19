@@ -2,7 +2,9 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+
 #include "LocalConfig.h"
+#include "HttpHelper.h"
 
 const int jsonDocSize = 300;       // size of static JSON document
 
@@ -19,6 +21,7 @@ void loop() {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
       getGardenBedConfig();
+      sendGardenBedData();
     }
     else {
       Serial.println("WiFi Disconnected");
@@ -29,16 +32,16 @@ void loop() {
 
 void connectToNetwork() {
   const int connectionDelay = 500;   // Delay for output when connecting to wifi
-  
+
   WiFi.begin(ssid, password);
-  
+
   Serial.println("Connecting");
   while (WiFi.status() != WL_CONNECTED) {
     delay(connectionDelay);
     Serial.print(".");
   }
   Serial.println("");
-  
+
   Serial.print("Connected to WiFi network with IP Address: ");
   Serial.println(WiFi.localIP());
 }
@@ -58,44 +61,8 @@ void getGardenBedConfig() {
   }
 
   updateApiCallDelay(doc);
-
 }
 
-String httpGETRequest(String requestPath) {
-  WiFiClient client;
-  HTTPClient http;
-
-  http.begin(client, requestPath.c_str());
-  int respCode = http.GET();
-
-  String payload = "{}";
-
-  if (respCode > 0) {
-    payload = http.getString();
-  }
-
-  http.end();
-
-  logHttpResponse("GET", requestPath, respCode, payload);
-
-  return payload;
-}
-
-void logHttpResponse(String requestType, String requestPath, int responseCode, String payload) {
-  Serial.print("HTTP Request to   : ");
-  Serial.println(requestType + " " + requestPath);
-
-  if (responseCode > 0) {
-    Serial.print("HTTP Response Code: ");
-    Serial.println(responseCode);
-    Serial.print("HTTP Response Body: ");
-    Serial.println(payload);
-  }
-  else {
-    Serial.print("Error code: ");
-    Serial.println(responseCode);
-  }
-}
 
 void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
   if (!doc["apiCallDelay"]) {
@@ -108,4 +75,28 @@ void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
     Serial.print("apiCallDelay updated to: ");
     Serial.println(apiCallDelay);
   }
+}
+
+void sendGardenBedData() {
+  String currentPath = serverName + "/api/data/gardenBed";
+
+  String gardenData = "{\"testKey\":\"testValue\"}";
+
+  StaticJsonDocument<jsonDocSize> doc;
+  // Add values in the document
+  //
+  doc["airTemp"] = 34;
+  doc["soilTemp"] = 38;
+  doc["light"] = 0.50;
+  doc["moisture"] = 0.45;
+  doc["humidity"] = 0.60;
+
+  JsonArray data = doc.createNestedArray("testArray");
+  data.add(48.756080);
+  data.add(2.302038);
+
+  String requestBody;
+  serializeJson(doc, requestBody);
+
+  int respCode = httpPOSTRequest(currentPath, requestBody);
 }

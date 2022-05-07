@@ -8,8 +8,8 @@
 
 const int jsonDocSize = 300;       // size of static JSON document
 
-unsigned long lastTime = 0;        // Holds value for millis() for timing API calls
-unsigned long apiCallDelay = 5000; // Delay between calls to API
+unsigned long lastApiCallTime = 0;   // Holds value for millis() for timing other API calls
+unsigned long apiCallDelay = 60000;  // Delay between calls to API
 
 void setup() {
   Serial.begin(115200);
@@ -18,6 +18,7 @@ void setup() {
 
 void loop() {
   if ((millis() - lastTime) > apiCallDelay) {
+  if ((millis() - lastApiCallTime) > apiCallDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
       getGardenBedConfig();
@@ -26,7 +27,7 @@ void loop() {
     else {
       Serial.println("WiFi Disconnected");
     }
-    lastTime = millis();
+    lastApiCallTime = millis();
   }
 }
 

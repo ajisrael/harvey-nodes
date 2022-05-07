@@ -1,8 +1,27 @@
-
-
+void updateLoginDelay(StaticJsonDocument<jsonDocSize> doc) {
+  if (!doc["loginDelay"]) {
+    Serial.println("No loginDelay configuration found");
     return;
   }
 
+  if (loginDelay != doc["loginDelay"]) {
+    loginDelay = doc["loginDelay"];
+    Serial.print("loginDelay updated to: ");
+    Serial.println(loginDelay);
+  }
+}
+
+void updateConfigUpdateDelay(StaticJsonDocument<jsonDocSize> doc) {
+  if (!doc["configUpdateDelay"]) {
+    Serial.println("No configUpdateDelay configuration found");
+    return;
+  }
+
+  if (configUpdateDelay != doc["configUpdateDelay"]) {
+    configUpdateDelay = doc["configUpdateDelay"];
+    Serial.print("configUpdateDelay updated to: ");
+    Serial.println(configUpdateDelay);
+  }
 }
 
 void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
@@ -32,5 +51,7 @@ void getHarveyNodeConfig() {
     return;
   }
 
+  updateLoginDelay(doc);
+  updateConfigUpdateDelay(doc);
   updateApiCallDelay(doc);
 }

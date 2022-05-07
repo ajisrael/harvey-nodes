@@ -5,8 +5,13 @@
 
 #include "LocalConfig.h"
 #include "HttpHelper.h"
+#include "NodeConfigHelper.h"
 
 const int jsonDocSize = 300;       // size of static JSON document
+const String nodeId = "ESP32_01";  // ID of Harvey node
+
+unsigned long lastConfigUpdateTime = 0;    // Holds value for millis() for timing config update API calls
+unsigned long configUpdateDelay = 3600000; // Delay between config update calls
 
 unsigned long lastApiCallTime = 0;   // Holds value for millis() for timing other API calls
 unsigned long apiCallDelay = 60000;  // Delay between calls to API
@@ -14,14 +19,23 @@ unsigned long apiCallDelay = 60000;  // Delay between calls to API
 void setup() {
   Serial.begin(115200);
   connectToNetwork();
+  if (WiFi.status() == WL_CONNECTED) {
+    getHarveyNodeConfig();
+  }
 }
 
 void loop() {
   if ((millis() - lastTime) > apiCallDelay) {
+  if ((millis() - lastConfigUpdateTime) > loginDelay) {
+    if (WiFi.status() == WL_CONNECTED) {
+      getHarveyNodeConfig();
+    }
+    lastConfigUpdateTime = millis();
+  }
+
   if ((millis() - lastApiCallTime) > apiCallDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
-      getGardenBedConfig();
       sendGardenBedData();
     }
     else {
@@ -47,35 +61,11 @@ void connectToNetwork() {
   Serial.println(WiFi.localIP());
 }
 
-void getGardenBedConfig() {
-  String currentPath = serverName + "/api/esp32config/gardenBed";
-
-  String payload = httpGETRequest(currentPath);
 
   StaticJsonDocument<jsonDocSize> doc;
-  DeserializationError error = deserializeJson(doc, payload);
-
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.f_str());
-    return;
-  }
-
-  updateApiCallDelay(doc);
-}
 
 
-void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
-  if (!doc["apiCallDelay"]) {
-    Serial.println("No apiCallDelay configuration found");
-    return;
-  }
 
-  if (apiCallDelay != doc["apiCallDelay"]) {
-    apiCallDelay = doc["apiCallDelay"];
-    Serial.print("apiCallDelay updated to: ");
-    Serial.println(apiCallDelay);
-  }
 }
 
 void sendGardenBedData() {

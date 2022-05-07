@@ -3,10 +3,6 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-#include "LocalConfig.h"
-#include "HttpHelper.h"
-#include "NodeConfigHelper.h"
-
 #define CONNECTED_BED_COUNT 2
 
 const int jsonDocSize = 300;       // size of static JSON document
@@ -21,6 +17,10 @@ unsigned long configUpdateDelay = 3600000; // Delay between config update calls
 
 unsigned long lastApiCallTime = 0;   // Holds value for millis() for timing other API calls
 unsigned long apiCallDelay = 60000;  // Delay between calls to API
+
+#include "LocalConfig.h"
+#include "HttpHelper.h"
+#include "NodeConfigHelper.h"
 
 void setup() {
   Serial.begin(115200);

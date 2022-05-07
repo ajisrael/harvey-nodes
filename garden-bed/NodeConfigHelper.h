@@ -1,3 +1,23 @@
+
+
+    return;
+  }
+
+}
+
+void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
+  if (!doc["apiCallDelay"]) {
+    Serial.println("No apiCallDelay configuration found");
+    return;
+  }
+
+  if (apiCallDelay != doc["apiCallDelay"]) {
+    apiCallDelay = doc["apiCallDelay"];
+    Serial.print("apiCallDelay updated to: ");
+    Serial.println(apiCallDelay);
+  }
+}
+
 void getHarveyNodeConfig() {
   String currentPath = serverName + "/api/node/" + nodeId + "/config";
 
@@ -13,18 +33,4 @@ void getHarveyNodeConfig() {
   }
 
   updateApiCallDelay(doc);
-}
-
-
-void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
-  if (!doc["apiCallDelay"]) {
-    Serial.println("No apiCallDelay configuration found");
-    return;
-  }
-
-  if (apiCallDelay != doc["apiCallDelay"]) {
-    apiCallDelay = doc["apiCallDelay"];
-    Serial.print("apiCallDelay updated to: ");
-    Serial.println(apiCallDelay);
-  }
 }

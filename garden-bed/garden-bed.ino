@@ -7,8 +7,14 @@
 #include "HttpHelper.h"
 #include "NodeConfigHelper.h"
 
+#define CONNECTED_BED_COUNT 2
+
 const int jsonDocSize = 300;       // size of static JSON document
 const String nodeId = "ESP32_01";  // ID of Harvey node
+const String bedIds[CONNECTED_BED_COUNT] = { "Bed_0", "Bed_1" };
+
+unsigned long lastLoginTime = 0;     // Holds value for millis() for timing login API calls
+unsigned long loginDelay = 86400000; // Delay between login calls
 
 unsigned long lastConfigUpdateTime = 0;    // Holds value for millis() for timing config update API calls
 unsigned long configUpdateDelay = 3600000; // Delay between config update calls
@@ -20,12 +26,19 @@ void setup() {
   Serial.begin(115200);
   connectToNetwork();
   if (WiFi.status() == WL_CONNECTED) {
+    login();
     getHarveyNodeConfig();
   }
 }
 
 void loop() {
-  if ((millis() - lastTime) > apiCallDelay) {
+  if ((millis() - lastLoginTime) > loginDelay) {
+    if (WiFi.status() == WL_CONNECTED) {
+      login();
+    }
+    lastLoginTime = millis();
+  }
+
   if ((millis() - lastConfigUpdateTime) > loginDelay) {
     if (WiFi.status() == WL_CONNECTED) {
       getHarveyNodeConfig();
@@ -36,7 +49,9 @@ void loop() {
   if ((millis() - lastApiCallTime) > apiCallDelay) {
     //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
-      sendGardenBedData();
+      for (int i = 0; i < CONNECTED_BED_COUNT; i++) {
+        sendGardenBedData(bedIds[i]);
+      }
     }
     else {
       Serial.println("WiFi Disconnected");
@@ -61,33 +76,35 @@ void connectToNetwork() {
   Serial.println(WiFi.localIP());
 }
 
+void login() {
+  String currentPath = serverName + "/api/users/login";
 
   StaticJsonDocument<jsonDocSize> doc;
+  doc["email"] = loginEmail;
+  doc["password"] = loginPassword;
 
+  String requestBody;
+  serializeJson(doc, requestBody);
 
+  String response = httpPOSTRequest(currentPath, requestBody);
 
+  setToken(response);
 }
 
-void sendGardenBedData() {
-  String currentPath = serverName + "/api/data/gardenBed";
-
-  String gardenData = "{\"testKey\":\"testValue\"}";
+void sendGardenBedData(String bedId) {
+  String currentPath = serverName + "/api/gardenBed/data";
 
   StaticJsonDocument<jsonDocSize> doc;
-  // Add values in the document
-  //
+
+  doc["bedId"] = bedId;
   doc["airTemp"] = 34;
   doc["soilTemp"] = 38;
   doc["light"] = 0.50;
   doc["moisture"] = 0.45;
   doc["humidity"] = 0.60;
 
-  JsonArray data = doc.createNestedArray("testArray");
-  data.add(48.756080);
-  data.add(2.302038);
-
   String requestBody;
   serializeJson(doc, requestBody);
 
-  int respCode = httpPOSTRequest(currentPath, requestBody);
+  String response = httpPOSTRequest(currentPath, requestBody);
 }

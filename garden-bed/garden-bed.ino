@@ -53,7 +53,6 @@ void loop() {
   }
 
   if ((millis() - lastApiCallTime) > apiCallDelay) {
-    //Check WiFi connection status
     if (WiFi.status() == WL_CONNECTED) {
       for (int i = 0; i < CONNECTED_BED_COUNT; i++) {
         sendGardenBedData(bedIds[i]);

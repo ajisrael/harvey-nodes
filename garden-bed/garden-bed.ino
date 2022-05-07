@@ -33,7 +33,7 @@ void loop() {
 void connectToNetwork() {
   const int connectionDelay = 500;   // Delay for output when connecting to wifi
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, wifiPassword);
 
   Serial.println("Connecting");
   while (WiFi.status() != WL_CONNECTED) {

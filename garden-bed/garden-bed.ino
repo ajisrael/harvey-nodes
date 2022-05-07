@@ -36,12 +36,18 @@ void loop() {
     if (WiFi.status() == WL_CONNECTED) {
       login();
     }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
     lastLoginTime = millis();
   }
 
   if ((millis() - lastConfigUpdateTime) > configUpdateDelay) {
     if (WiFi.status() == WL_CONNECTED) {
       getHarveyNodeConfig();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
     }
     lastConfigUpdateTime = millis();
   }

@@ -39,7 +39,7 @@ void loop() {
     lastLoginTime = millis();
   }
 
-  if ((millis() - lastConfigUpdateTime) > loginDelay) {
+  if ((millis() - lastConfigUpdateTime) > configUpdateDelay) {
     if (WiFi.status() == WL_CONNECTED) {
       getHarveyNodeConfig();
     }

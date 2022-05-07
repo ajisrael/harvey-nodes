@@ -38,7 +38,7 @@ void updateApiCallDelay(StaticJsonDocument<jsonDocSize> doc) {
 }
 
 void getHarveyNodeConfig() {
-  String currentPath = serverName + "/api/node/" + nodeId + "/config";
+  String currentPath = serverName + "/api/v1/node/" + nodeId + "/config";
 
   String payload = httpGETRequest(currentPath);
 

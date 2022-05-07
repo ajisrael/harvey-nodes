@@ -82,7 +82,7 @@ void connectToNetwork() {
 }
 
 void login() {
-  String currentPath = serverName + "/api/users/login";
+  String currentPath = serverName + "/api/v1/users/login";
 
   StaticJsonDocument<jsonDocSize> doc;
   doc["email"] = loginEmail;
@@ -97,7 +97,7 @@ void login() {
 }
 
 void sendGardenBedData(String bedId) {
-  String currentPath = serverName + "/api/gardenBed/data";
+  String currentPath = serverName + "/api/v1/gardenBed/data";
 
   StaticJsonDocument<jsonDocSize> doc;
 
